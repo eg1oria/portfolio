@@ -4,30 +4,37 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  min-height: 100vh;
+  padding: 20px;
+  box-sizing: border-box;
+  text-align: center;
 }
 
 .title {
   color: rgba(107, 230, 117, 0.836);
-  font-size: 70px;
+  font-size: clamp(30px, 8vw, 70px);
   font-weight: bold;
+  margin-bottom: 20px;
 }
 
 .authorSkill {
   display: flex;
-  width: 100%;
-  justify-content: space-between;
-  margin: 10px 0 100px 0;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin: 10px 0 50px 0;
   color: wheat;
-  font-size: 15px;
+  font-size: 14px;
 }
 
 .container {
-  padding: 0 300px;
-  margin: 0 auto;
+  width: 100%;
+  max-width: 1200px;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .bold {
@@ -36,7 +43,63 @@
 
 .year {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 30px;
+  gap: 15px;
   color: rgb(255, 206, 114);
+}
+
+/* МЕДИА-ЗАПРОСЫ */
+
+/* Планшеты */
+@media (max-width: 1024px) {
+  .container {
+    padding: 0 40px;
+  }
+
+  .authorSkill {
+    justify-content: space-around;
+    font-size: 13px;
+  }
+
+  .year {
+    gap: 10px;
+  }
+}
+
+/* Смартфоны */
+@media (max-width: 768px) {
+  .title {
+    font-size: clamp(24px, 10vw, 50px);
+  }
+
+  .container {
+    padding: 0 20px;
+  }
+
+  .authorSkill {
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 30px;
+  }
+
+  .year {
+    flex-direction: column;
+    gap: 8px;
+  }
+}
+
+/* Маленькие смартфоны */
+@media (max-width: 480px) {
+  .title {
+    font-size: clamp(20px, 12vw, 40px);
+  }
+
+  .authorSkill {
+    font-size: 12px;
+  }
+
+  .container {
+    padding: 0 10px;
+  }
 }
