@@ -1,0 +1,42 @@
+.home {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.title {
+  color: rgba(107, 230, 117, 0.836);
+  font-size: 70px;
+  font-weight: bold;
+}
+
+.authorSkill {
+  display: flex;
+  width: 100%;
+  justify-content: space-between;
+  margin: 10px 0 100px 0;
+  color: wheat;
+  font-size: 15px;
+}
+
+.container {
+  padding: 0 300px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bold {
+  font-weight: bold;
+}
+
+.year {
+  display: flex;
+  align-items: center;
+  gap: 30px;
+  color: rgb(255, 206, 114);
+}
