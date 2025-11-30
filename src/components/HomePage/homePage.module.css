@@ -48,10 +48,6 @@
   gap: 15px;
   color: rgb(255, 206, 114);
 }
-
-/* МЕДИА-ЗАПРОСЫ */
-
-/* Планшеты */
 @media (max-width: 1024px) {
   .container {
     padding: 0 40px;
@@ -67,7 +63,6 @@
   }
 }
 
-/* Смартфоны */
 @media (max-width: 768px) {
   .title {
     font-size: clamp(24px, 10vw, 50px);
@@ -89,7 +84,6 @@
   }
 }
 
-/* Маленькие смартфоны */
 @media (max-width: 480px) {
   .title {
     font-size: clamp(20px, 12vw, 40px);

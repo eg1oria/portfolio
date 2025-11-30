@@ -13,6 +13,8 @@ import { SiVite } from 'react-icons/si';
 import { SiNextdotjs } from 'react-icons/si';
 import { useState } from 'react';
 import './Stack.css';
+import { motion } from 'framer-motion';
+import { Variants } from 'framer-motion';
 
 export default function Stack() {
   const techStack = [
@@ -23,7 +25,7 @@ export default function Stack() {
       description: 'Strongly typed JavaScript for building safe and scalable applications.',
     },
     {
-      name: 'JavaScript (ES6+)',
+      name: 'JavaScript',
       icon: <FaJs size={35} />,
       color: '#F7DF1E',
       description: 'Modern JavaScript with async/await, modules, and latest language features.',
@@ -85,16 +87,73 @@ export default function Stack() {
     setOpenIndex((prev) => (prev === index ? null : index));
   }
 
-  return (
-    <div className={s.content}>
-      <h1 className={s.title}>my stack</h1>
+  const itemVariants: Variants = {
+    hidden: {
+      opacity: 0,
+      y: 20,
+      scale: 0.98,
+    },
+    visible: {
+      opacity: 1,
+      y: 0,
+      scale: 1,
+      transition: {
+        duration: 0.4,
+        ease: 'easeOut',
+      },
+    },
+  };
 
-      <ul className={s.list}>
+  return (
+    <motion.div
+      className={s.content}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}>
+      <motion.h1
+        className={s.title}
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 0.3 }}>
+        my stack
+      </motion.h1>
+
+      <motion.ul
+        className={s.list}
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.1 }}
+        variants={{
+          hidden: {},
+          visible: {
+            transition: {
+              staggerChildren: 0.2,
+              delayChildren: 0.1,
+            },
+          },
+        }}>
         {techStack.map((item, i) => (
-          <li key={i} className={s.listItem} onClick={() => handleOpen(i)}>
+          <motion.li
+            key={i}
+            className={s.listItem}
+            onClick={() => handleOpen(i)}
+            variants={itemVariants}
+            style={{
+              background:
+                openIndex === i ? 'rgba(168, 253, 71, 0.08)' : 'rgba(255, 255, 255, 0.02)',
+              borderLeftColor: openIndex === i ? '#a8fd478e' : 'transparent',
+            }}>
             <div className={s.nameWrap}>
-              <h4 className={s.itemName}>{item.name}</h4>
-              <span className={s.icon} style={{ color: item.color }}>
+              <h4
+                className={s.itemName}
+                style={{
+                  color: openIndex === i ? '#a8fd47a5' : 'white',
+                }}>
+                {item.name}
+              </h4>
+              <span
+                className={s.icon}
+                style={{ color: item.color, opacity: openIndex === i ? 1 : 0.7 }}>
                 {item.icon}
               </span>
             </div>
@@ -102,9 +161,9 @@ export default function Stack() {
             <div className={`deskWrap ${openIndex === i ? 'deskOpen' : ''}`}>
               <p className={s.description}>{item.description}</p>
             </div>
-          </li>
+          </motion.li>
         ))}
-      </ul>
-    </div>
+      </motion.ul>
+    </motion.div>
   );
 }

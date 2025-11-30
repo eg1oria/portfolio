@@ -1,21 +1,36 @@
+'use client';
+
+import { motion } from 'framer-motion';
 import s from './AboutMe.module.css';
-import { FaGithub } from 'react-icons/fa';
-import { FaWhatsapp } from 'react-icons/fa';
-import { FaTelegram } from 'react-icons/fa';
+import { FaGithub, FaWhatsapp, FaTelegram } from 'react-icons/fa';
 
 export default function AboutMePage() {
   return (
-    <div className={s.content}>
+    <motion.div
+      className={s.content}
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 0.8 }}>
       <div className={s.container}>
         <div className={s.cols}>
-          <div className={s.leftCol}>
+          <motion.div
+            className={s.leftCol}
+            initial={{ x: -80, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}>
             <div className={s.leftWrap}>
               <h1 className={s.title}>
-                <span className={s.tag}>{'<h1>'}</span>about me
+                <span className={s.tag}>{'<h1>'}</span>
+                about me
                 <span className={s.tag}>{'</h1>'}</span>
               </h1>
 
-              <p className={s.text}>
+              <motion.p
+                className={s.text}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: 1 }}>
                 Hello, my name is Egor, and I am a passionate{' '}
                 <span className={s.green}>Front-End Developer</span> specializing in and modern
                 React. I focus on building complex, scalable, and high-performance user interfaces
@@ -31,88 +46,99 @@ export default function AboutMePage() {
                 collaboration. I communicate well in a team, take responsibility for tasks, and
                 always aim for high-quality results. I constantly improve my stack, explore new
                 tools and architectural patterns, and invest in my professional growth.
-              </p>
+              </motion.p>
             </div>
+
             <div className={s.contacts}>
               <h2 className={s.contactsTitle}>contacts</h2>
+
               <div className={s.contactLinks}>
-                <a href="https://github.com/eg1oria" target="_blank">
-                  <FaGithub size={30} />
-                </a>
-                <a href="https://wa.me/77054424389" target="_blank">
-                  <FaWhatsapp size={30} />
-                </a>
-                <a href="https://t.me/eg1oria" target="_blank">
-                  <FaTelegram size={30} />
-                </a>
+                {[
+                  { icon: <FaGithub size={30} />, link: 'https://github.com/eg1oria' },
+                  { icon: <FaWhatsapp size={30} />, link: 'https://wa.me/77054424389' },
+                  { icon: <FaTelegram size={30} />, link: 'https://t.me/eg1oria' },
+                ].map((item, i) => (
+                  <motion.a
+                    key={i}
+                    href={item.link}
+                    target="_blank"
+                    whileHover={{ scale: 1.25, rotate: 5 }}
+                    whileTap={{ scale: 0.9 }}>
+                    {item.icon}
+                  </motion.a>
+                ))}
               </div>
             </div>
-          </div>
-          <div className={s.rightCol}>
-            <div className={s.part}>
+          </motion.div>
+
+          <motion.div
+            className={s.rightCol}
+            initial={{ x: 80, opacity: 0 }}
+            whileInView={{ x: 0, opacity: 1 }}
+            transition={{ duration: 0.8 }}
+            viewport={{ once: true }}>
+            <motion.div
+              className={s.part}
+              initial={{ y: 40, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.2 }}
+              viewport={{ once: true }}>
               <h2 className={s.rightTitle}>Education</h2>
-              <div className={s.eds}>
-                <div className={s.ed}>
-                  <span className={s.edDate}>2024-2025</span>
-                  <div className={s.edInfo}>
-                    <h4 className={s.edTitle}>SKILLBOX</h4>
-                    <div className={s.edNamecontainer}>
-                      <p className={s.edName}>
-                        Profession <span className={s.green}>Frontend Developer</span>, completed a
-                        course at Skillbox
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className={s.ed}>
-                  <span className={s.edDate}>2023-2026</span>
-                  <div className={s.edInfo}>
-                    <h4 className={s.edTitle}>ALT Univercity</h4>
-                    <div className={s.edNamecontainer}>
-                      <p className={s.edName}>Profession Data analyst, degree student</p>
-                    </div>
-                  </div>
+
+              <div className={s.ed}>
+                <span className={s.edDate}>2024 – 2025</span>
+                <div className={s.edInfo}>
+                  <h4 className={s.edTitle}>SKILLBOX</h4>
+                  <p className={s.edName}>
+                    Profession <span className={s.green}>Frontend Developer</span>
+                  </p>
                 </div>
               </div>
-            </div>
-            <div className={s.part}>
+
+              <div className={s.ed}>
+                <span className={s.edDate}>2023 – 2026</span>
+                <div className={s.edInfo}>
+                  <h4 className={s.edTitle}>ALT University</h4>
+                  <p className={s.edName}>Data Analyst</p>
+                </div>
+              </div>
+            </motion.div>
+
+            <motion.div
+              className={s.part}
+              initial={{ y: 40, opacity: 0 }}
+              whileInView={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.4 }}
+              viewport={{ once: true }}>
               <h2 className={s.rightTitle}>experience && projects</h2>
-              <div className={s.eds}>
-                <div className={s.ed}>
-                  <span className={s.edDate}>2025 - . . .</span>
-                  <div className={s.edInfo}>
-                    <h4 className={s.edTitle}>MiAmore</h4>
-                    <div className={s.edNamecontainer}>
-                      <p className={s.edName}>Pet зroject - flower shop</p>
-                    </div>
-                  </div>
-                </div>
-                <div className={s.ed}>
-                  <span className={s.edDate}>2023-2024</span>
-                  <div className={s.edInfo}>
-                    <h4 className={s.edTitle}>Starting projects</h4>
-                    <div className={s.edNamecontainer}>
-                      <p className={s.edName}>
-                        Layout only using HTML && CSS based on figma layouts, and using{' '}
-                        <span className={s.green}>pixel perfect</span>
-                      </p>
-                    </div>
-                  </div>
-                </div>
-                <div className={s.ed}>
-                  <span className={s.edDate}>2025 - 2025</span>
-                  <div className={s.edInfo}>
-                    <h4 className={s.edTitle}>Hegg</h4>
-                    <div className={s.edNamecontainer}>
-                      <p className={s.edName}>Heggsfield hackathon project</p>
-                    </div>
-                  </div>
+
+              <div className={s.ed}>
+                <span className={s.edDate}>2025 – . . .</span>
+                <div className={s.edInfo}>
+                  <h4 className={s.edTitle}>MiAmore</h4>
+                  <p className={s.edName}>Pet project — flower shop</p>
                 </div>
               </div>
-            </div>
-          </div>
+
+              <div className={s.ed}>
+                <span className={s.edDate}>2023 – 2024</span>
+                <div className={s.edInfo}>
+                  <h4 className={s.edTitle}>Starting projects</h4>
+                  <p className={s.edName}>HTML + CSS + Pixel Perfect</p>
+                </div>
+              </div>
+
+              <div className={s.ed}>
+                <span className={s.edDate}>2025 - 2025</span>
+                <div className={s.edInfo}>
+                  <h4 className={s.edTitle}>Hegg</h4>
+                  <p className={s.edName}>Heggsfield hackathon</p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
         </div>
       </div>
-    </div>
+    </motion.div>
   );
 }
