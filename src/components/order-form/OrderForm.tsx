@@ -23,11 +23,7 @@ import {
   BadgeCheck,
 } from 'lucide-react';
 import { toast } from 'sonner';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-
 import type {
   Contragent,
   Warehouse as WarehouseType,
@@ -47,7 +43,10 @@ import {
   createSale,
 } from './orderApi';
 
-// ─── Step indicators ───────────────────────────────────────────────────────────
+import '../components.css';
+
+// ─── Step bar ─────────────────────────────────────────────────────────────────
+
 const STEPS = [
   { id: 'auth', label: 'Токен', icon: LogIn },
   { id: 'client', label: 'Клиент', icon: User },
@@ -55,42 +54,29 @@ const STEPS = [
   { id: 'goods', label: 'Товары', icon: ShoppingCart },
   { id: 'confirm', label: 'Итог', icon: BadgeCheck },
 ];
-
 type Step = (typeof STEPS)[number]['id'];
 
 function StepBar({ current }: { current: Step }) {
   const idx = STEPS.findIndex((s) => s.id === current);
   return (
-    <div className="flex items-center justify-between px-4 py-3 bg-white border-b border-slate-100 sticky top-0 z-10">
+    <div className="stepbar">
       {STEPS.map((step, i) => {
         const done = i < idx;
         const active = i === idx;
         const Icon = step.icon;
         return (
-          <div key={step.id} className="flex items-center">
-            <div className="flex flex-col items-center gap-0.5">
-              <div
-                className={`w-7 h-7 rounded-full flex items-center justify-center transition-all ${
-                  done
-                    ? 'bg-emerald-500 text-white'
-                    : active
-                      ? 'bg-slate-900 text-white'
-                      : 'bg-slate-100 text-slate-400'
-                }`}>
-                {done ? <Check className="w-3.5 h-3.5" /> : <Icon className="w-3.5 h-3.5" />}
+          <div key={step.id} style={{ display: 'contents' }}>
+            <div className="stepbar__item">
+              <div className={`stepbar__icon${done ? ' done' : active ? ' active' : ''}`}>
+                {done ? (
+                  <Check style={{ width: 15, height: 15 }} />
+                ) : (
+                  <Icon style={{ width: 15, height: 15 }} />
+                )}
               </div>
-              <span
-                className={`text-[10px] font-medium ${
-                  active ? 'text-slate-900' : done ? 'text-emerald-600' : 'text-slate-400'
-                }`}>
-                {step.label}
-              </span>
+              <span className={`stepbar__label${active ? ' active' : ''}`}>{step.label}</span>
             </div>
-            {i < STEPS.length - 1 && (
-              <div
-                className={`w-6 h-px mx-1 mb-3 ${i < idx ? 'bg-emerald-300' : 'bg-slate-200'}`}
-              />
-            )}
+            {i < STEPS.length - 1 && <div className={`stepbar__line${done ? ' done' : ''}`} />}
           </div>
         );
       })}
@@ -98,21 +84,19 @@ function StepBar({ current }: { current: Step }) {
   );
 }
 
-// ─── Section card ──────────────────────────────────────────────────────────────
+// ─── Section card ─────────────────────────────────────────────────────────────
+
 function Section({ title, children }: { title?: string; children: React.ReactNode }) {
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
-      {title && (
-        <div className="px-4 pt-4 pb-2 border-b border-slate-100">
-          <p className="text-xs font-semibold uppercase tracking-widest text-slate-400">{title}</p>
-        </div>
-      )}
-      <div className="p-4">{children}</div>
+    <div className="section">
+      {title && <p className="section__title">{title}</p>}
+      <div className="section__body">{children}</div>
     </div>
   );
 }
 
-// ─── Select list ───────────────────────────────────────────────────────────────
+// ─── Select list ──────────────────────────────────────────────────────────────
+
 function SelectList<T extends { id: number; name: string }>({
   items,
   value,
@@ -128,36 +112,31 @@ function SelectList<T extends { id: number; name: string }>({
 }) {
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-6 text-slate-400">
-        <Loader2 className="w-5 h-5 animate-spin mr-2" />
-        <span className="text-sm">Загрузка...</span>
+      <div className="loading-state">
+        <span className="spin" />
+        Загрузка...
       </div>
     );
   }
-  if (!items.length) {
-    return <p className="text-sm text-slate-400 text-center py-4">{placeholder ?? 'Нет данных'}</p>;
-  }
+  if (!items.length) return <div className="empty-state">{placeholder ?? 'Нет данных'}</div>;
   return (
-    <div className="space-y-1">
+    <div className="select-list">
       {items.map((item) => (
         <button
           key={item.id}
           type="button"
           onClick={() => onChange(item.id)}
-          className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl text-sm transition-all ${
-            value === item.id
-              ? 'bg-slate-900 text-white font-medium'
-              : 'bg-slate-50 text-slate-700 hover:bg-slate-100'
-          }`}>
-          <span>{item.name}</span>
-          {value === item.id && <Check className="w-4 h-4" />}
+          className={`select-item${value === item.id ? ' selected' : ''}`}>
+          {item.name}
+          {value === item.id && <Check style={{ width: 14, height: 14 }} />}
         </button>
       ))}
     </div>
   );
 }
 
-// ─── Main component ─────────────────────────────────────────────────────────────
+// ─── Main component ───────────────────────────────────────────────────────────
+
 export function OrderForm() {
   const [step, setStep] = useState<Step>('auth');
 
@@ -178,7 +157,6 @@ export function OrderForm() {
   const [organizations, setOrganizations] = useState<Organization[]>([]);
   const [priceTypes, setPriceTypes] = useState<PriceType[]>([]);
   const [detailsLoading, setDetailsLoading] = useState(false);
-
   const [warehouseId, setWarehouseId] = useState<number | null>(null);
   const [payboxId, setPayboxId] = useState<number | null>(null);
   const [organizationId, setOrganizationId] = useState<number | null>(null);
@@ -193,7 +171,8 @@ export function OrderForm() {
   // Submit
   const [submitting, setSubmitting] = useState(false);
 
-  // ── Auth ──────────────────────────────────────────────────────────────────────
+  // ── Auth ──────────────────────────────────────────────────────────────────
+
   const handleAuth = async () => {
     const t = tokenInput.trim();
     if (!t) {
@@ -202,7 +181,7 @@ export function OrderForm() {
     }
     setAuthLoading(true);
     try {
-      await fetchWarehouses(t); // validate token
+      await fetchWarehouses(t);
       setToken(t);
       localStorage.setItem('crm_token', t);
       toast.success('Авторизация успешна');
@@ -223,7 +202,8 @@ export function OrderForm() {
     }
   }, []);
 
-  // ── Client ────────────────────────────────────────────────────────────────────
+  // ── Client ────────────────────────────────────────────────────────────────
+
   const handlePhoneSearch = async () => {
     if (phone.replace(/\D/g, '').length < 7) {
       toast.error('Введите номер телефона');
@@ -248,7 +228,8 @@ export function OrderForm() {
     }
   };
 
-  // ── Details ───────────────────────────────────────────────────────────────────
+  // ── Details ───────────────────────────────────────────────────────────────
+
   const loadDetails = useCallback(async () => {
     if (!token) return;
     setDetailsLoading(true);
@@ -278,14 +259,14 @@ export function OrderForm() {
     if (step === 'details') loadDetails();
   }, [step, loadDetails]);
 
-  // ── Goods ─────────────────────────────────────────────────────────────────────
+  // ── Goods ─────────────────────────────────────────────────────────────────
+
   const loadNomenclature = useCallback(
     async (search = '') => {
       if (!token) return;
       setNomenclatureLoading(true);
       try {
-        const items = await fetchNomenclature(token, search);
-        setNomenclature(items);
+        setNomenclature(await fetchNomenclature(token, search));
       } catch {
         toast.error('Ошибка загрузки товаров');
       } finally {
@@ -298,7 +279,6 @@ export function OrderForm() {
   useEffect(() => {
     if (step === 'goods') loadNomenclature();
   }, [step, loadNomenclature]);
-
   useEffect(() => {
     if (step !== 'goods') return;
     const timer = setTimeout(() => loadNomenclature(goodsSearch), 400);
@@ -308,11 +288,10 @@ export function OrderForm() {
   const addToCart = (item: Nomenclature) => {
     setCart((prev) => {
       const existing = prev.find((g) => g.nomenclature === item.id);
-      if (existing) {
+      if (existing)
         return prev.map((g) =>
           g.nomenclature === item.id ? { ...g, quantity: g.quantity + 1 } : g,
         );
-      }
       return [
         ...prev,
         {
@@ -341,7 +320,8 @@ export function OrderForm() {
 
   const totalAmount = cart.reduce((sum, g) => sum + g.price * g.quantity, 0);
 
-  // ── Submit ────────────────────────────────────────────────────────────────────
+  // ── Submit ────────────────────────────────────────────────────────────────
+
   const handleSubmit = async (conduct: boolean) => {
     if (!contragentId || !warehouseId || !payboxId || !organizationId) {
       toast.error('Заполните все обязательные поля');
@@ -380,149 +360,167 @@ export function OrderForm() {
     }
   };
 
-  // ─────────────────────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────────────────
+
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="min-h-screen bg-slate-50 pb-24">
-        {/* Header */}
-        <div className="bg-white border-b border-slate-200 px-4 py-3 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-slate-900 rounded-lg flex items-center justify-center">
-              <ShoppingCart className="w-4 h-4 text-white" />
-            </div>
-            <div>
-              <p className="text-xs text-slate-400 leading-none">TableCRM</p>
-              <p className="text-sm font-bold text-slate-900 leading-tight">Новый заказ</p>
-            </div>
-          </div>
-          {token && (
-            <button
-              onClick={() => {
-                setToken('');
-                setStep('auth');
-                localStorage.removeItem('crm_token');
-              }}
-              className="text-xs text-slate-400 hover:text-red-500 transition-colors">
-              Выйти
-            </button>
-          )}
-        </div>
-
-        <StepBar current={step} />
-
-        <div className="px-4 pt-4 max-w-lg mx-auto">
-          {/* ── STEP: AUTH ─────────────────────────────────────────────────── */}
-          {step === 'auth' && (
-            <Section title="Авторизация">
-              <p className="text-sm text-slate-500 mb-4">
-                Введите токен вашей кассы для подключения к TableCRM
-              </p>
-              <div className="space-y-3">
-                <div className="relative">
-                  <LogIn className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                  <Input
-                    value={tokenInput}
-                    onChange={(e) => setTokenInput(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && handleAuth()}
-                    placeholder="Вставьте токен..."
-                    className="pl-9 font-mono text-sm border-slate-200"
-                  />
-                </div>
-                <Button
-                  onClick={handleAuth}
-                  disabled={authLoading}
-                  className="w-full bg-slate-900 hover:bg-slate-800 gap-2">
-                  {authLoading ? (
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                  ) : (
-                    <Check className="w-4 h-4" />
-                  )}
-                  Подключиться
-                </Button>
+      <div className="order-page">
+        <div className="order-wrap">
+          {/* Header */}
+          <div className="order-header">
+            <div className="order-header__brand">
+              <div className="order-header__logo">
+                <ShoppingCart style={{ width: 18, height: 18 }} />
               </div>
+              <div>
+                <div className="order-header__name">TableCRM</div>
+                <div className="order-header__sub">Новый заказ</div>
+              </div>
+            </div>
+            {token && (
+              <button
+                type="button"
+                className="order-header__exit"
+                onClick={() => {
+                  setToken('');
+                  setStep('auth');
+                  localStorage.removeItem('crm_token');
+                }}>
+                Выйти
+              </button>
+            )}
+          </div>
+
+          {/* Step bar */}
+          <StepBar current={step} />
+
+          {/* ── STEP: AUTH ─────────────────────────────────────────────── */}
+          {step === 'auth' && (
+            <Section>
+              <p className="auth-desc">Введите токен вашей кассы для подключения к TableCRM</p>
+              <div style={{ position: 'relative' }}>
+                <LogIn
+                  style={{
+                    position: 'absolute',
+                    left: 12,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    color: 'var(--c-ink-400)',
+                    width: 16,
+                    height: 16,
+                  }}
+                />
+                <input
+                  type="text"
+                  value={tokenInput}
+                  onChange={(e) => setTokenInput(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleAuth()}
+                  placeholder="Вставьте токен..."
+                  className="inp mono"
+                  style={{ paddingLeft: 36, marginBottom: 10 }}
+                />
+              </div>
+              <button
+                type="button"
+                className="btn btn-primary btn-full"
+                onClick={handleAuth}
+                disabled={authLoading}>
+                {authLoading ? (
+                  <span className="spin" />
+                ) : (
+                  <ChevronRight style={{ width: 15, height: 15 }} />
+                )}
+                Подключиться
+              </button>
             </Section>
           )}
 
-          {/* ── STEP: CLIENT ───────────────────────────────────────────────── */}
+          {/* ── STEP: CLIENT ───────────────────────────────────────────── */}
           {step === 'client' && (
             <>
               <Section title="Поиск клиента">
-                <div className="flex gap-2">
-                  <div className="relative flex-1">
-                    <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                    <Input
+                <div className="search-row">
+                  <div style={{ position: 'relative', flex: 1 }}>
+                    <Phone
+                      style={{
+                        position: 'absolute',
+                        left: 12,
+                        top: '50%',
+                        transform: 'translateY(-50%)',
+                        color: 'var(--c-ink-400)',
+                        width: 15,
+                        height: 15,
+                      }}
+                    />
+                    <input
                       type="tel"
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       onKeyDown={(e) => e.key === 'Enter' && handlePhoneSearch()}
                       placeholder="+7 (999) 000-00-00"
-                      className="pl-9 border-slate-200"
+                      className="inp"
+                      style={{ paddingLeft: 36 }}
                     />
                   </div>
-                  <Button
+                  <button
+                    type="button"
+                    className="btn btn-primary"
                     onClick={handlePhoneSearch}
-                    disabled={phoneLoading}
-                    variant="outline"
-                    className="border-slate-200 gap-1.5 shrink-0">
+                    disabled={phoneLoading}>
                     {phoneLoading ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="spin" />
                     ) : (
-                      <Search className="w-4 h-4" />
+                      <Search style={{ width: 15, height: 15 }} />
                     )}
                     Найти
-                  </Button>
+                  </button>
                 </div>
 
                 {contragent && (
-                  <div className="mt-3 p-3 bg-emerald-50 border border-emerald-200 rounded-xl flex items-start justify-between">
-                    <div className="flex items-center gap-2.5">
-                      <div className="w-8 h-8 bg-emerald-100 rounded-full flex items-center justify-center">
-                        <User className="w-4 h-4 text-emerald-600" />
-                      </div>
-                      <div>
-                        <p className="text-sm font-semibold text-slate-900">{contragent.name}</p>
-                        <p className="text-xs text-slate-500">{phone}</p>
-                        {contragent.loyalty_card_id && (
-                          <Badge variant="secondary" className="mt-0.5 text-[10px] py-0">
-                            Карта лояльности
-                          </Badge>
-                        )}
-                      </div>
+                  <div className="client-card">
+                    <div className="client-card__info">
+                      <div className="client-card__name">{contragent.name}</div>
+                      <div className="client-card__phone">{phone}</div>
+                      {contragent.loyalty_card_id && (
+                        <span className="client-card__badge">Карта лояльности</span>
+                      )}
                     </div>
                     <button
+                      type="button"
+                      className="client-card__clear"
                       onClick={() => {
                         setContragent(null);
                         setContragentId(null);
                         setPhone('');
                       }}>
-                      <X className="w-4 h-4 text-slate-400 hover:text-red-500 transition-colors" />
+                      <X style={{ width: 16, height: 16 }} />
                     </button>
                   </div>
                 )}
               </Section>
 
-              <div className="flex flex-col gap-2">
-                <Button
+              <div className="action-stack">
+                <button
+                  type="button"
+                  className="btn btn-primary btn-full"
                   onClick={() => setStep('details')}
-                  className="w-full bg-slate-900 hover:bg-slate-800 gap-2"
                   disabled={!contragentId}>
-                  Продолжить
-                  <ChevronRight className="w-4 h-4" />
-                </Button>
-                <Button
-                  variant="ghost"
+                  Продолжить <ChevronRight style={{ width: 15, height: 15 }} />
+                </button>
+                <button
+                  type="button"
+                  className="btn-link"
                   onClick={() => {
                     setContragentId(-1);
                     setStep('details');
-                  }}
-                  className="w-full text-slate-500 text-sm">
+                  }}>
                   Продолжить без клиента
-                </Button>
+                </button>
               </div>
             </>
           )}
 
-          {/* ── STEP: DETAILS ──────────────────────────────────────────────── */}
+          {/* ── STEP: DETAILS ──────────────────────────────────────────── */}
           {step === 'details' && (
             <>
               <Section title="Счёт">
@@ -531,195 +529,189 @@ export function OrderForm() {
                   value={payboxId}
                   onChange={setPayboxId}
                   loading={detailsLoading}
+                  placeholder="Нет счетов"
                 />
               </Section>
-
               <Section title="Организация">
                 <SelectList
                   items={organizations}
                   value={organizationId}
                   onChange={setOrganizationId}
                   loading={detailsLoading}
+                  placeholder="Нет организаций"
                 />
               </Section>
-
               <Section title="Склад">
                 <SelectList
                   items={warehouses}
                   value={warehouseId}
                   onChange={setWarehouseId}
                   loading={detailsLoading}
+                  placeholder="Нет складов"
                 />
               </Section>
-
               <Section title="Тип цены">
                 <SelectList
                   items={priceTypes}
                   value={priceTypeId}
                   onChange={setPriceTypeId}
                   loading={detailsLoading}
+                  placeholder="Нет типов цены"
                 />
               </Section>
-
-              <Button
+              <button
+                type="button"
+                className="btn btn-primary btn-full"
+                style={{ marginTop: 4 }}
                 onClick={() => setStep('goods')}
-                disabled={!warehouseId || !payboxId || !organizationId}
-                className="w-full bg-slate-900 hover:bg-slate-800 gap-2 mb-4">
-                К выбору товаров
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+                disabled={!warehouseId || !payboxId || !organizationId}>
+                К выбору товаров <ChevronRight style={{ width: 15, height: 15 }} />
+              </button>
             </>
           )}
 
-          {/* ── STEP: GOODS ────────────────────────────────────────────────── */}
+          {/* ── STEP: GOODS ────────────────────────────────────────────── */}
           {step === 'goods' && (
             <>
-              {/* Cart summary */}
               {cart.length > 0 && (
-                <div className="bg-slate-900 text-white rounded-2xl p-4 mb-4">
-                  <div className="flex items-center justify-between mb-3">
-                    <p className="text-sm font-semibold">Корзина</p>
-                    <Badge variant="secondary" className="bg-white/20 text-white border-0">
-                      {cart.length} поз.
-                    </Badge>
+                <div className="cart-box">
+                  <div className="cart-header">
+                    <span className="cart-title">Корзина</span>
+                    <span className="cart-badge">{cart.length} поз.</span>
                   </div>
-                  <div className="space-y-2">
-                    {cart.map((g) => (
-                      <div key={g.nomenclature} className="flex items-center gap-2">
-                        <span className="text-sm flex-1 truncate text-slate-300">{g.name}</span>
-                        <div className="flex items-center gap-1.5">
-                          <button
-                            onClick={() => updateQty(g.nomenclature, -1)}
-                            className="w-6 h-6 rounded-md bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-                            <Minus className="w-3 h-3" />
-                          </button>
-                          <span className="text-sm font-mono w-5 text-center">{g.quantity}</span>
-                          <button
-                            onClick={() => updateQty(g.nomenclature, 1)}
-                            className="w-6 h-6 rounded-md bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors">
-                            <Plus className="w-3 h-3" />
-                          </button>
-                          <button onClick={() => removeFromCart(g.nomenclature)} className="ml-1">
-                            <Trash2 className="w-3.5 h-3.5 text-red-400 hover:text-red-300" />
-                          </button>
-                        </div>
-                        <span className="text-sm font-semibold w-20 text-right">
-                          {(g.price * g.quantity).toLocaleString('ru-RU')} ₽
-                        </span>
+                  {cart.map((g) => (
+                    <div key={g.nomenclature} className="cart-item">
+                      <span className="cart-item__name">{g.name}</span>
+                      <div className="cart-item__controls">
+                        <button
+                          type="button"
+                          className="cart-btn"
+                          onClick={() => updateQty(g.nomenclature, -1)}>
+                          <Minus style={{ width: 12, height: 12 }} />
+                        </button>
+                        <span className="cart-item__qty">{g.quantity}</span>
+                        <button
+                          type="button"
+                          className="cart-btn"
+                          onClick={() => updateQty(g.nomenclature, 1)}>
+                          <Plus style={{ width: 12, height: 12 }} />
+                        </button>
+                        <button
+                          type="button"
+                          className="cart-btn cart-item__del"
+                          onClick={() => removeFromCart(g.nomenclature)}>
+                          <Trash2 style={{ width: 12, height: 12 }} />
+                        </button>
                       </div>
-                    ))}
-                  </div>
-                  <div className="border-t border-white/20 mt-3 pt-3 flex justify-between">
-                    <span className="text-sm text-slate-400">Итого</span>
-                    <span className="font-bold">{totalAmount.toLocaleString('ru-RU')} ₽</span>
+                      <span className="cart-item__price">
+                        {(g.price * g.quantity).toLocaleString('ru-RU')} ₽
+                      </span>
+                    </div>
+                  ))}
+                  <div className="cart-total">
+                    <span className="cart-total__label">Итого</span>
+                    <span>{totalAmount.toLocaleString('ru-RU')} ₽</span>
                   </div>
                 </div>
               )}
 
-              {/* Search */}
-              <div className="relative mb-3">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
-                <Input
+              <div className="goods-search">
+                <Search className="goods-search__icon" style={{ width: 15, height: 15 }} />
+                <input
+                  type="text"
                   value={goodsSearch}
                   onChange={(e) => setGoodsSearch(e.target.value)}
                   placeholder="Поиск товара..."
-                  className="pl-9 border-slate-200 bg-white"
+                  className="inp"
+                  style={{ paddingLeft: 36 }}
                 />
               </div>
 
-              {/* Items */}
-              <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden mb-4">
+              <div className="goods-list">
                 {nomenclatureLoading ? (
-                  <div className="flex items-center justify-center py-10 text-slate-400">
-                    <Loader2 className="w-5 h-5 animate-spin mr-2" />
-                    <span className="text-sm">Загрузка товаров...</span>
+                  <div className="loading-state">
+                    <span className="spin" /> Загрузка товаров...
                   </div>
                 ) : nomenclature.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-10 text-slate-400 gap-2">
-                    <PackageSearch className="w-8 h-8" />
-                    <span className="text-sm">Товары не найдены</span>
+                  <div className="empty-state">
+                    <PackageSearch style={{ width: 20, height: 20 }} /> Товары не найдены
                   </div>
                 ) : (
-                  <div className="divide-y divide-slate-100">
-                    {nomenclature.map((item) => {
-                      const inCart = cart.find((g) => g.nomenclature === item.id);
-                      return (
-                        <div
-                          key={item.id}
-                          className="flex items-center justify-between px-4 py-3 hover:bg-slate-50 transition-colors">
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-slate-900 truncate">
-                              {item.name}
-                            </p>
-                            <p className="text-xs text-slate-400">
-                              {item.price
-                                ? `${item.price.toLocaleString('ru-RU')} ₽`
-                                : 'Цена не указана'}
-                            </p>
+                  nomenclature.map((item) => {
+                    const inCart = cart.find((g) => g.nomenclature === item.id);
+                    return (
+                      <div key={item.id} className="goods-item">
+                        <div className="goods-item__info">
+                          <div className="goods-item__name">{item.name}</div>
+                          <div className="goods-item__price">
+                            {item.price
+                              ? `${item.price.toLocaleString('ru-RU')} ₽`
+                              : 'Цена не указана'}
                           </div>
+                        </div>
+                        <div className="goods-item__controls">
                           {inCart ? (
-                            <div className="flex items-center gap-1.5 ml-3">
+                            <>
                               <button
-                                onClick={() => updateQty(item.id, -1)}
-                                className="w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-200 flex items-center justify-center transition-colors">
-                                <Minus className="w-3.5 h-3.5 text-slate-700" />
+                                type="button"
+                                className="goods-btn goods-btn-minus"
+                                onClick={() => updateQty(item.id, -1)}>
+                                <Minus style={{ width: 13, height: 13 }} />
                               </button>
-                              <span className="text-sm font-semibold w-5 text-center">
-                                {inCart.quantity}
-                              </span>
+                              <span className="goods-item__qty">{inCart.quantity}</span>
                               <button
-                                onClick={() => updateQty(item.id, 1)}
-                                className="w-7 h-7 rounded-lg bg-slate-900 hover:bg-slate-700 flex items-center justify-center transition-colors">
-                                <Plus className="w-3.5 h-3.5 text-white" />
+                                type="button"
+                                className="goods-btn goods-btn-plus"
+                                onClick={() => updateQty(item.id, 1)}>
+                                <Plus style={{ width: 13, height: 13 }} />
                               </button>
-                            </div>
+                            </>
                           ) : (
                             <button
-                              onClick={() => addToCart(item)}
-                              className="ml-3 w-7 h-7 rounded-lg bg-slate-100 hover:bg-slate-900 hover:text-white flex items-center justify-center transition-all group">
-                              <Plus className="w-3.5 h-3.5 text-slate-600 group-hover:text-white" />
+                              type="button"
+                              className="goods-btn goods-btn-add"
+                              onClick={() => addToCart(item)}>
+                              <Plus style={{ width: 13, height: 13 }} />
                             </button>
                           )}
                         </div>
-                      );
-                    })}
-                  </div>
+                      </div>
+                    );
+                  })
                 )}
               </div>
 
-              <Button
+              <button
+                type="button"
+                className="btn btn-primary btn-full"
+                style={{ marginTop: 14 }}
                 onClick={() => setStep('confirm')}
-                disabled={cart.length === 0}
-                className="w-full bg-slate-900 hover:bg-slate-800 gap-2 mb-4">
-                К оформлению
-                <ChevronRight className="w-4 h-4" />
-              </Button>
+                disabled={cart.length === 0}>
+                К оформлению <ChevronRight style={{ width: 15, height: 15 }} />
+              </button>
             </>
           )}
 
-          {/* ── STEP: CONFIRM ──────────────────────────────────────────────── */}
+          {/* ── STEP: CONFIRM ──────────────────────────────────────────── */}
           {step === 'confirm' && (
             <>
-              {/* Client */}
               <Section title="Клиент">
                 {contragent ? (
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 bg-slate-100 rounded-full flex items-center justify-center">
-                      <User className="w-4 h-4 text-slate-600" />
+                  <div>
+                    <div style={{ fontWeight: 700, fontSize: 14, color: 'var(--c-ink-900)' }}>
+                      {contragent.name}
                     </div>
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">{contragent.name}</p>
-                      <p className="text-xs text-slate-400">{phone}</p>
+                    <div style={{ fontSize: 12, color: 'var(--c-ink-400)', marginTop: 2 }}>
+                      {phone}
                     </div>
                   </div>
                 ) : (
-                  <p className="text-sm text-slate-400">Без клиента</p>
+                  <div style={{ fontSize: 13, color: 'var(--c-ink-400)' }}>Без клиента</div>
                 )}
               </Section>
 
-              {/* Settings */}
-              <Section title="Параметры заказа">
-                <div className="space-y-2 text-sm">
+              <Section title="Параметры">
+                <div className="confirm-settings">
                   {[
                     {
                       label: 'Счёт',
@@ -742,69 +734,68 @@ export function OrderForm() {
                       value: priceTypes.find((p) => p.id === priceTypeId)?.name,
                     },
                   ].map(({ label, icon: Icon, value }) => (
-                    <div key={label} className="flex items-center justify-between py-1">
-                      <div className="flex items-center gap-2 text-slate-500">
-                        <Icon className="w-3.5 h-3.5" />
-                        <span>{label}</span>
-                      </div>
-                      <span className="font-medium text-slate-900">{value ?? '—'}</span>
+                    <div key={label} className="confirm-setting-row">
+                      <Icon
+                        className="confirm-setting-row__icon"
+                        style={{ width: 15, height: 15 }}
+                      />
+                      <span className="confirm-setting-row__label">{label}</span>
+                      <span className="confirm-setting-row__value">{value ?? '—'}</span>
                     </div>
                   ))}
                 </div>
               </Section>
 
-              {/* Goods */}
               <Section title="Товары">
-                <div className="space-y-2">
+                <div className="confirm-goods">
                   {cart.map((g) => (
-                    <div key={g.nomenclature} className="flex items-center justify-between text-sm">
-                      <span className="text-slate-700 flex-1 truncate">{g.name}</span>
-                      <span className="text-slate-500 mx-2">×{g.quantity}</span>
-                      <span className="font-semibold text-slate-900">
-                        {(g.price * g.quantity).toLocaleString('ru-RU')} ₽
+                    <div key={g.nomenclature} className="confirm-good-row">
+                      <span>
+                        {g.name} ×{g.quantity}
                       </span>
+                      <span>{(g.price * g.quantity).toLocaleString('ru-RU')} ₽</span>
                     </div>
                   ))}
-                  <div className="border-t border-slate-100 pt-2 flex justify-between font-semibold">
-                    <span className="text-slate-700">Итого</span>
-                    <span className="text-slate-900">{totalAmount.toLocaleString('ru-RU')} ₽</span>
+                  <div className="confirm-total">
+                    <span>Итого</span>
+                    <span>{totalAmount.toLocaleString('ru-RU')} ₽</span>
                   </div>
                 </div>
               </Section>
 
-              {/* Buttons */}
-              <div className="space-y-2 mb-4">
+              <div className="confirm-btns">
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
+                    <button
+                      type="button"
+                      className="btn btn-outline btn-full"
                       onClick={() => handleSubmit(false)}
-                      disabled={submitting}
-                      variant="outline"
-                      className="w-full border-slate-900 text-slate-900 hover:bg-slate-50 gap-2">
+                      disabled={submitting}>
                       {submitting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="spin" />
                       ) : (
-                        <Receipt className="w-4 h-4" />
+                        <Receipt style={{ width: 15, height: 15 }} />
                       )}
                       Создать заказ
-                    </Button>
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>Создать заказ без проведения</TooltipContent>
                 </Tooltip>
 
                 <Tooltip>
                   <TooltipTrigger asChild>
-                    <Button
+                    <button
+                      type="button"
+                      className="btn btn-primary btn-full"
                       onClick={() => handleSubmit(true)}
-                      disabled={submitting}
-                      className="w-full bg-slate-900 hover:bg-slate-800 gap-2">
+                      disabled={submitting}>
                       {submitting ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
+                        <span className="spin" />
                       ) : (
-                        <BadgeCheck className="w-4 h-4" />
+                        <BadgeCheck style={{ width: 15, height: 15 }} />
                       )}
                       Создать и провести
-                    </Button>
+                    </button>
                   </TooltipTrigger>
                   <TooltipContent>Создать заказ и сразу провести его</TooltipContent>
                 </Tooltip>

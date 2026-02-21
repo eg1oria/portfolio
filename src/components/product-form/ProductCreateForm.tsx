@@ -3,6 +3,7 @@
 import { useState, useTransition } from 'react';
 import { useForm, type Resolver } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
+import '../components.css';
 import {
   Sparkles,
   Save,
@@ -18,29 +19,8 @@ import { productSchema, type ProductFormValues } from './schema';
 import { createProduct } from '@/app/actions';
 import { TagInput } from './TagInput';
 import { toast } from 'sonner';
-
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-  FormDescription,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Button } from '@/components/ui/button';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from '@/components/ui/select';
+import { Form, FormControl, FormField, FormItem, FormMessage } from '@/components/ui/form';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import Link from 'next/link';
 
 const TABS = [
   {
@@ -55,29 +35,19 @@ const TABS = [
     icon: FileText,
     tooltip: 'Описания и ключевые слова для поиска',
   },
-  {
-    value: 'pricing',
-    label: 'Финансы',
-    icon: BadgeDollarSign,
-    tooltip: 'Цена и расчёт комиссии',
-  },
-  {
-    value: 'logistics',
-    label: 'Локация',
-    icon: MapPin,
-    tooltip: 'Адрес и координаты склада',
-  },
+  { value: 'pricing', label: 'Финансы', icon: BadgeDollarSign, tooltip: 'Цена и расчёт комиссии' },
+  { value: 'logistics', label: 'Локация', icon: MapPin, tooltip: 'Адрес и координаты склада' },
 ];
 
 function FieldHint({ text }: { text: string }) {
   return (
     <Tooltip>
       <TooltipTrigger asChild>
-        <Info className="w-3.5 h-3.5 text-slate-400 hover:text-slate-600 cursor-help transition-colors inline-block ml-1.5 align-middle" />
+        <span className="field-hint">
+          <Info style={{ width: 14, height: 14 }} />
+        </span>
       </TooltipTrigger>
-      <TooltipContent side="top" className="max-w-[220px] text-xs">
-        {text}
-      </TooltipContent>
+      <TooltipContent side="top">{text}</TooltipContent>
     </Tooltip>
   );
 }
@@ -118,7 +88,6 @@ export function ProductCreateForm() {
     }
     setIsGenerating(true);
     await new Promise((r) => setTimeout(r, 1500));
-
     form.setValue(
       'description_short',
       `Отличный выбор: ${productName}. Высокое качество, стильный дизайн и надёжность.`,
@@ -136,7 +105,6 @@ export function ProductCreateForm() {
       'оригинал',
     ]);
     form.setValue('code', `ART-${Math.floor(Math.random() * 100000)}`);
-
     setIsGenerating(false);
     toast.success('AI заполнил описание, SEO-теги и артикул');
   };
@@ -147,14 +115,11 @@ export function ProductCreateForm() {
       if (result.success) {
         toast.success('Товар успешно опубликован!');
         form.reset();
-      } else {
-        toast.error(`Ошибка: ${result.error}`);
-      }
+      } else toast.error(`Ошибка: ${result.error}`);
     });
   };
 
   const activeTabIndex = TABS.findIndex((t) => t.value === activeTab);
-
   const goNext = () => {
     if (activeTabIndex < TABS.length - 1) setActiveTab(TABS[activeTabIndex + 1].value);
   };
@@ -166,35 +131,29 @@ export function ProductCreateForm() {
 
   return (
     <TooltipProvider delayDuration={300}>
-      <div className="min-h-screen bg-slate-50 flex items-start justify-center py-10 px-4">
+      <div className="product-page">
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="w-full max-w-3xl">
-            <div className="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <form onSubmit={form.handleSubmit(onSubmit)} className="product-form">
+            {/* Header */}
+            <div className="product-header">
               <div>
-                <p className="text-xs font-semibold uppercase tracking-widest text-slate-400 mb-1">
-                  Маркетплейс
-                </p>
-                <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
-                  Новая карточка товара
-                </h1>
+                <p className="product-header__eyebrow">Маркетплейс</p>
+                <h1 className="product-header__title">Новая карточка товара</h1>
               </div>
-
               <Tooltip>
                 <TooltipTrigger asChild>
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
-                    size="sm"
+                    className="btn-ai"
                     onClick={handleAIGeneration}
-                    disabled={isGenerating}
-                    className="border-violet-200 text-violet-700 hover:bg-violet-50 hover:border-violet-400 transition-colors gap-2">
+                    disabled={isGenerating}>
                     {isGenerating ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
+                      <span className="spin" />
                     ) : (
-                      <Sparkles className="w-4 h-4" />
+                      <Sparkles style={{ width: 16, height: 16 }} />
                     )}
                     {isGenerating ? 'Генерация...' : 'Заполнить с AI'}
-                  </Button>
+                  </button>
                 </TooltipTrigger>
                 <TooltipContent side="bottom">
                   Автоматически заполнит описание, SEO-теги и сгенерирует артикул на основе названия
@@ -202,68 +161,70 @@ export function ProductCreateForm() {
               </Tooltip>
             </div>
 
-            <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                <div className="border-b border-slate-100 px-4 pt-4">
-                  <TabsList className="bg-transparent p-0 gap-0 h-auto w-full justify-start">
-                    {TABS.map(({ value, label, icon: Icon, tooltip }) => (
-                      <Tooltip key={value}>
-                        <TooltipTrigger asChild>
-                          <TabsTrigger
-                            value={value}
-                            className="relative px-4 py-2.5 rounded-none text-sm font-medium text-slate-500 data-[state=active]:text-slate-900 data-[state=active]:bg-transparent border-b-2 border-transparent data-[state=active]:border-slate-900 hover:text-slate-700 transition-colors gap-1.5">
-                            <Icon className="w-3.5 h-3.5" />
-                            {label}
-                          </TabsTrigger>
-                        </TooltipTrigger>
-                        <TooltipContent side="bottom" className="text-xs">
-                          {tooltip}
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-                  </TabsList>
-                </div>
+            {/* Card */}
+            <div className="product-card">
+              {/* Tabs nav */}
+              <div className="tabs-nav" role="tablist">
+                {TABS.map(({ value, label, icon: Icon, tooltip }) => (
+                  <Tooltip key={value}>
+                    <TooltipTrigger asChild>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={activeTab === value}
+                        className="tab-trigger"
+                        onClick={() => setActiveTab(value)}>
+                        <Icon style={{ width: 14, height: 14 }} />
+                        {label}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="bottom">{tooltip}</TooltipContent>
+                  </Tooltip>
+                ))}
+              </div>
 
-                <TabsContent value="basic" className="p-6 space-y-5">
+              {/* ── Tab: Basic ── */}
+              {activeTab === 'basic' && (
+                <div className="tab-panel">
                   <FormField
                     control={form.control}
                     name="name"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 font-medium">
-                          Название товара <span className="text-red-400">*</span>
-                          <FieldHint text="Полное коммерческое название. Должно быть понятным и содержать ключевые характеристики." />
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Например: Беспроводные наушники Sony WH-1000XM5"
-                            className="h-10 border-slate-200 focus-visible:ring-slate-300"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
+                        <div className="field">
+                          <label className="field-label">
+                            Название товара <span className="required">*</span>
+                            <FieldHint text="Полное коммерческое название. Должно быть понятным и содержать ключевые характеристики." />
+                          </label>
+                          <FormControl>
+                            <input
+                              className="inp"
+                              placeholder="Например: Беспроводные наушники Sony WH-1000XM5"
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </div>
                       </FormItem>
                     )}
                   />
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div className="field-grid">
                     <FormField
                       control={form.control}
                       name="code"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-medium">
-                            Артикул <span className="text-red-400">*</span>
-                            <FieldHint text="Уникальный идентификатор товара (SKU). Используется для складского учёта и поиска." />
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              placeholder="SKU-12345"
-                              className="h-10 border-slate-200 focus-visible:ring-slate-300 font-mono text-sm"
-                              {...field}
-                            />
-                          </FormControl>
-                          <FormMessage />
+                          <div className="field">
+                            <label className="field-label">
+                              Артикул <span className="required">*</span>
+                              <FieldHint text="Уникальный идентификатор товара (SKU). Используется для складского учёта и поиска." />
+                            </label>
+                            <FormControl>
+                              <input className="inp mono" placeholder="SKU-12345" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </div>
                         </FormItem>
                       )}
                     />
@@ -273,50 +234,53 @@ export function ProductCreateForm() {
                       name="category"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-medium">
-                            Категория <span className="text-red-400">*</span>
-                            <FieldHint text="Определяет, в каком разделе каталога будет отображаться товар." />
-                          </FormLabel>
-                          <Select
-                            onValueChange={(v) => field.onChange(Number(v))}
-                            defaultValue={field.value.toString()}>
+                          <div className="field">
+                            <label className="field-label">
+                              Категория <span className="required">*</span>
+                              <FieldHint text="Определяет, в каком разделе каталога будет отображаться товар." />
+                            </label>
                             <FormControl>
-                              <SelectTrigger className="h-10 border-slate-200">
-                                <SelectValue placeholder="Выберите категорию" />
-                              </SelectTrigger>
+                              <select
+                                className="inp"
+                                value={field.value}
+                                onChange={(e) => field.onChange(Number(e.target.value))}>
+                                <option value="2477">Электроника</option>
+                                <option value="2478">Одежда</option>
+                                <option value="2479">Дом и сад</option>
+                              </select>
                             </FormControl>
-                            <SelectContent>
-                              <SelectItem value="2477">Электроника</SelectItem>
-                              <SelectItem value="2478">Одежда</SelectItem>
-                              <SelectItem value="2479">Дом и сад</SelectItem>
-                            </SelectContent>
-                          </Select>
-                          <FormMessage />
+                            <FormMessage />
+                          </div>
                         </FormItem>
                       )}
                     />
                   </div>
-                </TabsContent>
+                </div>
+              )}
 
-                <TabsContent value="content" className="p-6 space-y-5">
+              {/* ── Tab: Content ── */}
+              {activeTab === 'content' && (
+                <div className="tab-panel">
                   <FormField
                     control={form.control}
                     name="description_short"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 font-medium">
-                          Краткое описание
-                          <FieldHint text="Отображается в карточке товара и списках. До 255 символов. Чётко и ёмко." />
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Главные преимущества товара в 1–2 предложениях..."
-                            className="resize-none border-slate-200 focus-visible:ring-slate-300"
-                            rows={3}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
+                        <div className="field">
+                          <label className="field-label">
+                            Краткое описание
+                            <FieldHint text="Отображается в карточке товара и списках. До 255 символов. Чётко и ёмко." />
+                          </label>
+                          <FormControl>
+                            <textarea
+                              className="inp-area"
+                              rows={3}
+                              placeholder="Главные преимущества товара в 1–2 предложениях..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </div>
                       </FormItem>
                     )}
                   />
@@ -326,19 +290,21 @@ export function ProductCreateForm() {
                     name="description_long"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 font-medium">
-                          Полное описание
-                          <FieldHint text="Развёрнутое описание на странице товара. Укажите материалы, характеристики и особенности." />
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            placeholder="Подробное описание: материалы, характеристики, применение..."
-                            className="resize-none border-slate-200 focus-visible:ring-slate-300"
-                            rows={5}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormMessage />
+                        <div className="field">
+                          <label className="field-label">
+                            Полное описание
+                            <FieldHint text="Развёрнутое описание на странице товара. Укажите материалы, характеристики и особенности." />
+                          </label>
+                          <FormControl>
+                            <textarea
+                              className="inp-area"
+                              rows={5}
+                              placeholder="Подробное описание: материалы, характеристики, применение..."
+                              {...field}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </div>
                       </FormItem>
                     )}
                   />
@@ -348,21 +314,21 @@ export function ProductCreateForm() {
                     name="seo_title"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 font-medium">
-                          SEO-заголовок
-                          <FieldHint text="Заголовок страницы в браузере и поисковой выдаче. Влияет на позицию в Google и Яндексе." />
-                        </FormLabel>
-                        <FormControl>
-                          <Input
-                            placeholder="Купить [товар] с доставкой | Лучшая цена"
-                            className="h-10 border-slate-200 focus-visible:ring-slate-300"
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription className="text-xs text-slate-400">
-                          Рекомендуется до 60 символов
-                        </FormDescription>
-                        <FormMessage />
+                        <div className="field">
+                          <label className="field-label">
+                            SEO-заголовок
+                            <FieldHint text="Заголовок страницы в браузере и поисковой выдаче. Влияет на позицию в Google и Яндексе." />
+                          </label>
+                          <FormControl>
+                            <input
+                              className="inp"
+                              placeholder="Купить [товар] с доставкой | Лучшая цена"
+                              {...field}
+                            />
+                          </FormControl>
+                          <p className="field-description">Рекомендуется до 60 символов</p>
+                          <FormMessage />
+                        </div>
                       </FormItem>
                     )}
                   />
@@ -372,47 +338,50 @@ export function ProductCreateForm() {
                     name="seo_keywords"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 font-medium">
-                          Ключевые слова
-                          <FieldHint text="Слова, по которым покупатели ищут товар. Добавьте синонимы, бренд и характеристики." />
-                        </FormLabel>
-                        <FormControl>
-                          <TagInput value={field.value} onChange={field.onChange} />
-                        </FormControl>
-                        <FormDescription className="text-xs text-slate-400">
-                          Вводите слова через запятую или Enter
-                        </FormDescription>
-                        <FormMessage />
+                        <div className="field">
+                          <label className="field-label">
+                            Ключевые слова
+                            <FieldHint text="Слова, по которым покупатели ищут товар. Добавьте синонимы, бренд и характеристики." />
+                          </label>
+                          <FormControl>
+                            <TagInput value={field.value} onChange={field.onChange} />
+                          </FormControl>
+                          <p className="field-description">Вводите слова через запятую или Enter</p>
+                          <FormMessage />
+                        </div>
                       </FormItem>
                     )}
                   />
-                </TabsContent>
+                </div>
+              )}
 
-                <TabsContent value="pricing" className="p-6 space-y-5">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* ── Tab: Pricing ── */}
+              {activeTab === 'pricing' && (
+                <div className="tab-panel">
+                  <div className="field-grid">
                     <FormField
                       control={form.control}
                       name="marketplace_price"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-medium">
-                            Цена <span className="text-red-400">*</span>
-                            <FieldHint text="Итоговая цена для покупателя на маркетплейсе. Без скидок и акций." />
-                          </FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
-                                ₽
-                              </span>
-                              <Input
-                                type="number"
-                                className="h-10 pl-7 border-slate-200 focus-visible:ring-slate-300"
-                                {...field}
-                                onChange={(e) => field.onChange(+e.target.value)}
-                              />
-                            </div>
-                          </FormControl>
-                          <FormMessage />
+                          <div className="field">
+                            <label className="field-label">
+                              Цена <span className="required">*</span>
+                              <FieldHint text="Итоговая цена для покупателя на маркетплейсе. Без скидок и акций." />
+                            </label>
+                            <FormControl>
+                              <div className="inp-wrap">
+                                <span className="inp-prefix">₽</span>
+                                <input
+                                  type="number"
+                                  className="inp"
+                                  {...field}
+                                  onChange={(e) => field.onChange(+e.target.value)}
+                                />
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </div>
                         </FormItem>
                       )}
                     />
@@ -422,101 +391,94 @@ export function ProductCreateForm() {
                       name="chatting_percent"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-medium">
-                            Процент чаттинга
-                            <FieldHint text="Комиссия маркетплейса за продажу через чат. Вычитается из итоговой выплаты." />
-                          </FormLabel>
-                          <FormControl>
-                            <div className="relative">
-                              <Input
-                                type="number"
-                                className="h-10 pr-7 border-slate-200 focus-visible:ring-slate-300"
-                                {...field}
-                                onChange={(e) => field.onChange(+e.target.value)}
-                              />
-                              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 text-sm font-medium">
-                                %
-                              </span>
-                            </div>
-                          </FormControl>
-                          <FormMessage />
+                          <div className="field">
+                            <label className="field-label">
+                              Процент чаттинга
+                              <FieldHint text="Комиссия маркетплейса за продажу через чат. Вычитается из итоговой выплаты." />
+                            </label>
+                            <FormControl>
+                              <div className="inp-wrap">
+                                <input
+                                  type="number"
+                                  className="inp has-suffix"
+                                  {...field}
+                                  onChange={(e) => field.onChange(+e.target.value)}
+                                />
+                                <span className="inp-suffix">%</span>
+                              </div>
+                            </FormControl>
+                            <FormMessage />
+                          </div>
                         </FormItem>
                       )}
                     />
                   </div>
 
                   {price > 0 && (
-                    <div className="mt-2 p-4 rounded-xl bg-slate-50 border border-slate-200">
-                      <p className="text-xs font-semibold uppercase tracking-wider text-slate-400 mb-2">
-                        Расчёт
-                      </p>
-                      <div className="flex justify-between text-sm">
-                        <span className="text-slate-600">Цена товара</span>
-                        <span className="font-semibold text-slate-900">
-                          {price.toLocaleString('ru-RU')} ₽
-                        </span>
+                    <div className="pricing-box">
+                      <p className="pricing-box__title">Расчёт</p>
+                      <div className="pricing-row">
+                        <span>Цена товара</span>
+                        <strong>{price.toLocaleString('ru-RU')} ₽</strong>
                       </div>
-                      <div className="flex justify-between text-sm mt-1">
-                        <span className="text-slate-600">Чаттинг ({percent}%)</span>
-                        <span className="text-slate-500">
-                          {commission.toLocaleString('ru-RU')} ₽
-                        </span>
+                      <div className="pricing-row">
+                        <span>Чаттинг ({percent}%)</span>
+                        <span>{commission.toLocaleString('ru-RU')} ₽</span>
                       </div>
-                      <div className="border-t border-slate-200 mt-2 pt-2 flex justify-between text-sm">
-                        <span className="font-medium text-slate-700">Итого к получению</span>
-                        <span className="font-bold text-slate-900">
-                          {payout.toLocaleString('ru-RU')} ₽
-                        </span>
+                      <div className="pricing-total">
+                        <span>Итого к получению</span>
+                        <span>{payout.toLocaleString('ru-RU')} ₽</span>
                       </div>
                     </div>
                   )}
-                </TabsContent>
+                </div>
+              )}
 
-                <TabsContent value="logistics" className="p-6 space-y-5">
+              {/* ── Tab: Logistics ── */}
+              {activeTab === 'logistics' && (
+                <div className="tab-panel">
                   <FormField
                     control={form.control}
                     name="address"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel className="text-slate-700 font-medium">
-                          Адрес склада
-                          <FieldHint text="Полный почтовый адрес места хранения и отгрузки товара." />
-                        </FormLabel>
-                        <FormControl>
-                          <Textarea
-                            className="resize-none border-slate-200 focus-visible:ring-slate-300"
-                            rows={2}
-                            {...field}
-                          />
-                        </FormControl>
-                        <FormDescription className="text-xs text-slate-400">
-                          Координаты определяются автоматически
-                        </FormDescription>
-                        <FormMessage />
+                        <div className="field">
+                          <label className="field-label">
+                            Адрес склада
+                            <FieldHint text="Полный почтовый адрес места хранения и отгрузки товара." />
+                          </label>
+                          <FormControl>
+                            <textarea className="inp-area" rows={2} {...field} />
+                          </FormControl>
+                          <p className="field-description">Координаты определяются автоматически</p>
+                          <FormMessage />
+                        </div>
                       </FormItem>
                     )}
                   />
 
-                  <div className="grid grid-cols-2 gap-4">
+                  <div className="field-grid">
                     <FormField
                       control={form.control}
                       name="latitude"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-medium text-xs">
-                            Широта
-                            <FieldHint text="Географическая широта склада (Y-координата). Диапазон: -90 до 90." />
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="any"
-                              className="h-9 border-slate-200 font-mono text-xs"
-                              {...field}
-                              onChange={(e) => field.onChange(+e.target.value)}
-                            />
-                          </FormControl>
-                          <FormMessage />
+                          <div className="field">
+                            <label className="field-label" style={{ fontSize: 12 }}>
+                              Широта
+                              <FieldHint text="Географическая широта склада (Y-координата). Диапазон: -90 до 90." />
+                            </label>
+                            <FormControl>
+                              <input
+                                type="number"
+                                step="any"
+                                className="inp mono"
+                                {...field}
+                                onChange={(e) => field.onChange(+e.target.value)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </div>
                         </FormItem>
                       )}
                     />
@@ -525,90 +487,77 @@ export function ProductCreateForm() {
                       name="longitude"
                       render={({ field }) => (
                         <FormItem>
-                          <FormLabel className="text-slate-700 font-medium text-xs">
-                            Долгота
-                            <FieldHint text="Географическая долгота склада (X-координата). Диапазон: -180 до 180." />
-                          </FormLabel>
-                          <FormControl>
-                            <Input
-                              type="number"
-                              step="any"
-                              className="h-9 border-slate-200 font-mono text-xs"
-                              {...field}
-                              onChange={(e) => field.onChange(+e.target.value)}
-                            />
-                          </FormControl>
-                          <FormMessage />
+                          <div className="field">
+                            <label className="field-label" style={{ fontSize: 12 }}>
+                              Долгота
+                              <FieldHint text="Географическая долгота склада (X-координата). Диапазон: -180 до 180." />
+                            </label>
+                            <FormControl>
+                              <input
+                                type="number"
+                                step="any"
+                                className="inp mono"
+                                {...field}
+                                onChange={(e) => field.onChange(+e.target.value)}
+                              />
+                            </FormControl>
+                            <FormMessage />
+                          </div>
                         </FormItem>
                       )}
                     />
                   </div>
-                </TabsContent>
+                </div>
+              )}
 
-                <div className="px-6 py-4 border-t border-slate-100 flex items-center justify-between bg-slate-50/50">
-                  <div className="flex gap-1">
-                    {TABS.map((t) => (
-                      <Tooltip key={t.value}>
-                        <TooltipTrigger asChild>
-                          <button
-                            type="button"
-                            onClick={() => setActiveTab(t.value)}
-                            className={`h-2 rounded-full transition-all duration-200 ${
-                              t.value === activeTab
-                                ? 'bg-slate-900 w-4'
-                                : 'bg-slate-300 hover:bg-slate-400 w-2'
-                            }`}
-                          />
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">
-                          {t.label}
-                        </TooltipContent>
-                      </Tooltip>
-                    ))}
-                  </div>
+              {/* Footer */}
+              <div className="card-footer">
+                <div className="step-dots">
+                  {TABS.map((t) => (
+                    <Tooltip key={t.value}>
+                      <TooltipTrigger asChild>
+                        <button
+                          type="button"
+                          onClick={() => setActiveTab(t.value)}
+                          className={`step-dot${t.value === activeTab ? ' active' : ''}`}
+                        />
+                      </TooltipTrigger>
+                      <TooltipContent side="top">{t.label}</TooltipContent>
+                    </Tooltip>
+                  ))}
+                </div>
 
-                  <div className="flex items-center gap-2">
-                    {activeTabIndex < TABS.length - 1 && (
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button
-                            type="button"
-                            variant="ghost"
-                            size="sm"
-                            onClick={goNext}
-                            className="text-slate-600 gap-1">
-                            Далее
-                            <ChevronRight className="w-4 h-4" />
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent side="top" className="text-xs">
-                          Перейти к разделу «{TABS[activeTabIndex + 1]?.label}»
-                        </TooltipContent>
-                      </Tooltip>
-                    )}
-
+                <div className="footer-actions">
+                  {activeTabIndex < TABS.length - 1 && (
                     <Tooltip>
                       <TooltipTrigger asChild>
-                        <Button
-                          type="submit"
-                          size="sm"
-                          disabled={isPending}
-                          className="bg-slate-900 hover:bg-slate-800 text-white gap-2 px-5">
-                          {isPending ? (
-                            <Loader2 className="w-4 h-4 animate-spin" />
-                          ) : (
-                            <Save className="w-4 h-4" />
-                          )}
-                          {isPending ? 'Сохранение...' : 'Опубликовать'}
-                        </Button>
+                        <button type="button" className="btn btn-ghost" onClick={goNext}>
+                          Далее <ChevronRight style={{ width: 15, height: 15 }} />
+                        </button>
                       </TooltipTrigger>
-                      <TooltipContent side="top" className="text-xs">
-                        Сохранить и опубликовать карточку товара
+                      <TooltipContent side="top">
+                        Перейти к разделу «{TABS[activeTabIndex + 1]?.label}»
                       </TooltipContent>
                     </Tooltip>
-                  </div>
+                  )}
+
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <button type="submit" className="btn btn-primary" disabled={isPending}>
+                        {isPending ? (
+                          <span className="spin" />
+                        ) : (
+                          <Save style={{ width: 15, height: 15 }} />
+                        )}
+                        {isPending ? 'Сохранение...' : 'Опубликовать'}
+                      </button>
+                    </TooltipTrigger>
+                    <TooltipContent side="top">
+                      Сохранить и опубликовать карточку товара
+                    </TooltipContent>
+                  </Tooltip>
                 </div>
-              </Tabs>
+              </div>
             </div>
           </form>
         </Form>

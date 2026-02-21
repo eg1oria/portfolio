@@ -2,7 +2,7 @@
 
 import { useState, KeyboardEvent } from 'react';
 import { X, Hash } from 'lucide-react';
-
+import '../components.css';
 interface TagInputProps {
   value: string[];
   onChange: (value: string[]) => void;
@@ -36,31 +36,14 @@ export function TagInput({ value, onChange, placeholder }: TagInputProps) {
   };
 
   return (
-    <div className="group relative">
-      <div
-        className="
-          min-h-[2.75rem] w-full rounded-lg border border-slate-200
-          bg-white px-3 py-2 flex flex-wrap gap-1.5 items-center
-          focus-within:border-slate-400 focus-within:ring-2 focus-within:ring-slate-100
-          transition-all duration-150
-        ">
+    <div>
+      <div className="tag-input">
         {value.map((tag) => (
-          <span
-            key={tag}
-            className="
-              inline-flex items-center gap-1 px-2 py-0.5
-              bg-slate-100 text-slate-700 text-xs font-medium
-              rounded-md border border-slate-200
-              hover:border-slate-300 hover:bg-slate-200/70
-              transition-colors duration-100
-            ">
-            <Hash className="w-3 h-3 text-slate-400" />
+          <span key={tag} className="tag-chip">
+            <Hash className="tag-chip__hash" />
             {tag}
-            <button
-              type="button"
-              onClick={() => removeTag(tag)}
-              className="ml-0.5 text-slate-400 hover:text-red-500 transition-colors">
-              <X className="w-3 h-3" />
+            <button type="button" className="tag-chip__remove" onClick={() => removeTag(tag)}>
+              <X style={{ width: 12, height: 12 }} />
             </button>
           </span>
         ))}
@@ -71,14 +54,11 @@ export function TagInput({ value, onChange, placeholder }: TagInputProps) {
           onKeyDown={handleKeyDown}
           onBlur={() => inputValue.trim() && addTag(inputValue)}
           placeholder={value.length === 0 ? placeholder || 'Введите тег и нажмите Enter...' : ''}
-          className="
-            flex-1 min-w-[140px] bg-transparent text-sm text-slate-800
-            outline-none placeholder:text-slate-400
-          "
+          className="tag-input__field"
         />
       </div>
       {value.length > 0 && (
-        <p className="mt-1.5 text-xs text-slate-400">
+        <p className="tag-count">
           {value.length} {value.length === 1 ? 'тег' : value.length < 5 ? 'тега' : 'тегов'}
         </p>
       )}
