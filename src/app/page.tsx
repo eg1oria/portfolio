@@ -1,3 +1,4 @@
+import { OrderForm } from '@/components/order-form/OrderForm';
 import { ProductCreateForm } from '@/components/product-form/ProductCreateForm';
 import { Toaster } from '@/components/ui/sonner';
 
@@ -8,6 +9,10 @@ export default function Home() {
         <ProductCreateForm />
       </div>
       <Toaster position="top-right" richColors />
+      <div className="">
+        <OrderForm />
+      </div>
+      <Toaster position="top-center" richColors />
     </main>
   );
 }
