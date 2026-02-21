@@ -15,7 +15,7 @@ import {
   Info,
 } from 'lucide-react';
 import { productSchema, type ProductFormValues } from './schema';
-import { createProductAction } from '@/app/actions';
+import { createProduct } from '@/app/actions';
 import { TagInput } from './TagInput';
 import { toast } from 'sonner';
 
@@ -142,7 +142,7 @@ export function ProductCreateForm() {
 
   const onSubmit = (data: ProductFormValues) => {
     startTransition(async () => {
-      const result = await createProductAction(data);
+      const result = await createProduct(data);
       if (result.success) {
         toast.success('Товар успешно опубликован!');
         form.reset();
