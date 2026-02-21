@@ -1,13 +1,13 @@
-import AboutMePage from '@/components/AboutMe/AboutMe';
-import HomePage from '@/components/HomePage/HomePage';
-import Stack from '@/components/Stack/Stack';
+import { ProductCreateForm } from '@/components/product-form/ProductCreateForm';
+import { Toaster } from '@/components/ui/sonner';
 
 export default function Home() {
   return (
-    <div className="content">
-      <HomePage />
-      <AboutMePage />
-      <Stack />
-    </div>
+    <main className="min-h-screen bg-slate-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto">
+        <ProductCreateForm />
+      </div>
+      <Toaster position="top-right" richColors />
+    </main>
   );
 }
