@@ -1,0 +1,42 @@
+.header {
+  color: white;
+  padding: 48px 196px;
+
+  &_content {
+    display: flex;
+    justify-content: space-between;
+
+    &_logo {
+      &_text {
+        font-size: 24px;
+        font-weight: 500;
+      }
+    }
+
+    &_nav {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      &_list {
+        display: flex;
+        gap: 40px;
+
+        &_item {
+          font-weight: 400;
+          font-size: 18px;
+        }
+      }
+    }
+    &_socials {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      &_list {
+        display: flex;
+        gap: 16px;
+      }
+    }
+  }
+}
